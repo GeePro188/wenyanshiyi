@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文言拾遗 - 高保真原型</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        paper: '#F7F5F0',
+                        ink: '#1A1A1A',
+                        'ink-light': '#595959',
+                        'ink-fade': '#A6A6A6',
+                        cinnabar: '#C94A4A',
+                        indigo: '#3A5F8A',
+                        bamboo: '#5B8C5A',
+                    },
+                    fontFamily: {
+                        serif: ['"Noto Serif SC"', 'SimSun', 'Songti SC', 'serif'],
+                        sans: ['"Noto Sans SC"', 'PingFang SC', 'Microsoft YaHei', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #E5E5E5; font-family: 'Noto Sans SC', sans-serif; }
+        /* 隐藏滚动条但保留滚动功能 */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        /* 水墨热点图方块 */
+        .ink-square { width: 12px; height: 12px; border-radius: 2px; }
+        /* 卡片悬浮感 */
+        .card-shadow { box-shadow: 0 2px 12px rgba(0,0,0,0.03); }
+        /* 展开动画 */
+        .expand-section { max-height: 0; overflow: hidden; transition: max-height 0.4s ease, padding 0.4s ease; }
+        .expand-section.active { max-height: 200px; padding-top: 12px; }
+    </style>
+</head>
+<body class="flex justify-center items-start min-h-screen p-4">
+
+    <!-- 手机外壳模拟 -->
+    <div class="w-[393px] h-[852px] bg-paper rounded-[40px] overflow-hidden relative border-[8px] border-gray-800 shadow-2xl flex flex-col">
+        
+        <!-- 状态栏模拟 -->
+        <div class="h-12 bg-paper flex items-end justify-between px-8 pb-1 shrink-0">
+            <span class="text-xs font-semibold text-ink">9:41</span>
+            <div class="w-28 h-6 bg-black rounded-full"></div> <!-- 灵动岛模拟 -->
+            <div class="flex items-center gap-1">
+                <i data-lucide="signal" class="w-3.5 h-3.5 text-ink"></i>
+                <i data-lucide="wifi" class="w-3.5 h-3.5 text-ink"></i>
+                <i data-lucide="battery-full" class="w-4 h-4 text-ink"></i>
+            </div>
+        </div>
+
+        <!-- 主内容区 -->
+        <div class="flex-1 overflow-y-auto no-scrollbar relative">
+
+            <!-- ==================== 页面1：每日一练 ==================== -->
+            <div id="screen-practice" class="screen px-6 pt-4 pb-24">
+                <!-- 顶栏 -->
+                <div class="flex justify-between items-center mb-6">
+                    <h1 class="text-2xl font-serif font-medium text-ink">每日一练</h1>
+                    <div class="flex items-center gap-1 bg-cinnabar/10 px-3 py-1 rounded-full">
+                        <i data-lucide="flame" class="w-4 h-4 text-cinnabar"></i>
+                        <span class="text-xs font-medium text-cinnabar">连续 7 天</span>
+                    </div>
+                </div>
+
+                <!-- 进度指示 -->
+                <div class="flex items-center gap-2 mb-6">
+                    <div class="flex gap-1.5">
+                        <div class="w-2 h-2 rounded-full bg-cinnabar"></div>
+                        <div class="w-2 h-2 rounded-full bg-cinnabar"></div>
+                        <div class="w-2 h-2 rounded-full bg-cinnabar/50 border border-cinnabar"></div>
+                        <div class="w-2 h-2 rounded-full bg-gray-200"></div>
+                        <div class="w-2 h-2 rounded-full bg-gray-200"></div>
+                        <div class="w-2 h-2 rounded-full bg-gray-200"></div>
+                        <div class="w-2 h-2 rounded-full bg-gray-200"></div>
+                        <div class="w-2 h-2 rounded-full bg-gray-200"></div>
+                        <div class="w-2 h-2 rounded-full bg-indigo/30"></div>
+                        <div class="w-2 h-2 rounded-full bg-indigo/30"></div>
+                    </div>
+                    <span class="text-xs text-ink-fade ml-auto">3 / 10</span>
+                    <span class="text-[10px] bg-indigo/10 text-indigo px-2 py-0.5 rounded-full">虚词</span>
+                </div>
+
+                <!-- 题目卡片 -->
+                <div class="bg-white rounded-2xl p-8 card-shadow mb-6 text-center relative">
+                    <!-- 装饰角标 -->
+                    <div class="absolute top-4 right-4 w-4 h-4 border-t-2 border-r-2 border-gray-100 rounded-tr-md"></div>
+                    <div class="absolute bottom-4 left-4 w-4 h-4 border-b-2 border-l-2 border-gray-100 rounded-bl-md"></div>
+                    
+                    <p class="font-serif text-2xl text-ink leading-relaxed tracking-wide mb-4">
+                        邻人京城氏之孀妻有<span class="text-cinnabar font-bold">遗</span>男。
+                    </p>
+                    <p class="text-xs text-ink-fade font-sans">
+                        ——《列子·汤问》
+                    </p>
+                </div>
+
+                <!-- 选项区 -->
+                <div class="space-y-3" id="options-container">
+                    <button onclick="selectOption(this, false)" class="w-full bg-white text-left px-5 py-4 rounded-xl border border-gray-100 text-base text-ink-light transition-all hover:border-gray-300 flex items-center">
+                        <span class="w-6 h-6 rounded-full border border-gray-200 flex items-center justify-center text-xs mr-3 shrink-0">A</span>
+                        遗忘，忘记
+                    </button>
+                    <button onclick="selectOption(this, true)" class="w-full bg-white text-left px-5 py-4 rounded-xl border border-gray-100 text-base text-ink-light transition-all hover:border-gray-300 flex items-center">
+                        <span class="w-6 h-6 rounded-full border border-gray-200 flex items-center justify-center text-xs mr-3 shrink-0">B</span>
+                        遗留，特指死去的人留下的
+                    </button>
+                    <button onclick="selectOption(this, false)" class="w-full bg-white text-left px-5 py-4 rounded-xl border border-gray-100 text-base text-ink-light transition-all hover:border-gray-300 flex items-center">
+                        <span class="w-6 h-6 rounded-full border border-gray-200 flex items-center justify-center text-xs mr-3 shrink-0">C</span>
+                        赠送，给予
+                    </button>
+                    <button onclick="selectOption(this, false)" class="w-full bg-white text-left px-5 py-4 rounded-xl border border-gray-100 text-base text-ink-light transition-all hover:border-gray-300 flex items-center">
+                        <span class="w-6 h-6 rounded-full border border-gray-200 flex items-center justify-center text-xs mr-3 shrink-0">D</span>
+                        缺失，遗漏
+                    </button>
+                </div>
+
+                <!-- 解析展开区 -->
+                <div id="explain-panel" class="expand-section bg-bamboo/5 rounded-xl mt-3 px-5 border border-bamboo/20">
+                    <p class="text-sm text-bamboo font-medium mb-1">✓ 回答正确</p>
+                    <p class="text-sm text-ink-light leading-relaxed">
+                        <span class="font-serif text-ink">遗 (wèi)</span>：动词。古义多指“遗留、留下”。此处指父亲去世后留下的儿子（遗腹子/孤儿）。
+                    </p>
+                </div>
+            </div>
+
+            <!-- ==================== 页面2：词语搜索 ==================== -->
+            <div id="screen-search" class="screen px-6 pt-4 pb-24 hidden">
+                <h1 class="text-2xl font-serif font-medium text-ink mb-6">词语搜索</h1>
+                
+                <!-- 搜索框 -->
+                <div class="relative mb-8">
+                    <i data-lucide="search" class="w-5 h-5 text-ink-fade absolute left-4 top-1/2 -translate-y-1/2"></i>
+                    <input type="text" value="走" class="w-full bg-white/80 backdrop-blur-sm border border-gray-100 rounded-2xl py-3.5 pl-12 pr-4 text-base text-ink focus:outline-none focus:border-cinnabar/30 placeholder-ink-fade" placeholder="搜字词，探古今">
+                </div>
+
+                <!-- 详情卡片头部 -->
+                <div class="bg-white rounded-2xl p-6 card-shadow mb-4">
+                    <div class="flex items-baseline mb-4">
+                        <span class="text-5xl font-serif font-bold text-ink mr-4">走</span>
+                        <span class="text-xl text-ink-light font-light">zǒu</span>
+                    </div>
+                    <div class="flex gap-2 mb-1">
+                        <span class="bg-cinnabar/10 text-cinnabar text-xs px-2.5 py-1 rounded-md">实词</span>
+                        <span class="bg-gray-100 text-ink-light text-xs px-2.5 py-1 rounded-md">动词</span>
+                        <span class="bg-indigo/10 text-indigo text-xs px-2.5 py-1 rounded-md">古今异义</span>
+                    </div>
+                </div>
+
+                <!-- 古今异义对比 -->
+                <div class="bg-white rounded-2xl p-6 card-shadow mb-4">
+                    <h3 class="text-sm font-medium text-ink mb-4 flex items-center">
+                        <span class="w-1 h-4 bg-indigo rounded-full mr-2"></span>古今异义对比
+                    </h3>
+                    <div class="flex gap-4">
+                        <div class="flex-1 bg-cinnabar/5 rounded-xl p-4 text-center">
+                            <p class="text-xs text-ink-fade mb-2">古义</p>
+                            <p class="text-lg font-serif font-medium text-cinnabar">跑</p>
+                        </div>
+                        <div class="flex items-center text-ink-fade">
+                            <i data-lucide="arrow-right-left" class="w-4 h-4"></i>
+                        </div>
+                        <div class="flex-1 bg-indigo/5 rounded-xl p-4 text-center">
+                            <p class="text-xs text-ink-fade mb-2">今义</p>
+                            <p class="text-lg font-serif font-medium text-indigo">行走</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 一词多义列表 -->
+                <div class="bg-white rounded-2xl p-6 card-shadow">
+                    <h3 class="text-sm font-medium text-ink mb-4 flex items-center">
+                        <span class="w-1 h-4 bg-cinnabar rounded-full mr-2"></span>一词多义
+                    </h3>
+                    <div class="space-y-4">
+                        <div class="border-l-2 border-cinnabar/30 pl-4">
+                            <p class="text-base text-ink font-medium mb-1">1. 跑，逃跑</p>
+                            <p class="text-sm text-ink-light leading-relaxed">双兔傍地<span class="text-cinnabar">走</span>。</p>
+                            <p class="text-xs text-ink-fade mt-1">——《木兰诗》</p>
+                        </div>
+                        <div class="border-l-2 border-cinnabar/30 pl-4">
+                            <p class="text-base text-ink font-medium mb-1">2. 介词，向</p>
+                            <p class="text-sm text-ink-light leading-relaxed">骊山北构而西折，直<span class="text-cinnabar">走</span>咸阳。</p>
+                            <p class="text-xs text-ink-fade mt-1">——《阿房宫赋》</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ==================== 页面3：我的墨盒 ==================== -->
+            <div id="screen-collection" class="screen px-6 pt-4 pb-24 hidden">
+                <div class="flex justify-between items-center mb-6">
+                    <h1 class="text-2xl font-serif font-medium text-ink">我的墨盒</h1>
+                    <i data-lucide="sliders-horizontal" class="w-5 h-5 text-ink-light"></i>
+                </div>
+
+                <!-- 筛选 Tab -->
+                <div class="flex gap-4 mb-6 border-b border-gray-100 pb-3">
+                    <span class="text-sm font-medium text-cinnabar border-b-2 border-cinnabar pb-3 -mb-[13px]">全部 (24)</span>
+                    <span class="text-sm text-ink-fade">实词 (18)</span>
+                    <span class="text-sm text-ink-fade">虚词 (6)</span>
+                </div>
+
+                <!-- 瀑布流卡片 -->
+                <div class="grid grid-cols-2 gap-3">
+                    <!-- 卡片1 -->
+                    <div class="bg-white rounded-2xl p-5 card-shadow flex flex-col justify-between h-36">
+                        <span class="text-4xl font-serif font-bold text-ink self-center mb-4">遗</span>
+                        <div class="border-t border-gray-50 pt-2">
+                            <p class="text-xs text-ink-light">wèi | 动词</p>
+                            <p class="text-xs text-ink-fade mt-1">遗留、留下</p>
+                        </div>
+                    </div>
+                    <!-- 卡片2 (略高) -->
+                    <div class="bg-white rounded-2xl p-5 card-shadow flex flex-col justify-between h-44">
+                        <span class="text-4xl font-serif font-bold text-ink self-center mb-4">走</span>
+                        <div class="border-t border-gray-50 pt-2">
+                            <p class="text-xs text-ink-light">zǒu | 动词</p>
+                            <p class="text-xs text-cinnabar mt-1 bg-cinnabar/5 inline-block px-1.5 rounded">⚠ 古今异义</p>
+                            <p class="text-xs text-ink-fade mt-1">古义：跑</p>
+                        </div>
+                    </div>
+                    <!-- 卡片3 -->
+                    <div class="bg-white rounded-2xl p-5 card-shadow flex flex-col justify-between h-40">
+                        <span class="text-4xl font-serif font-bold text-ink self-center mb-4">之</span>
+                        <div class="border-t border-gray-50 pt-2">
+                            <p class="text-xs text-indigo">zhī | 虚词</p>
+                            <p class="text-xs text-ink-fade mt-1">代词/助词/动词</p>
+                        </div>
+                    </div>
+                    <!-- 卡片4 -->
+                    <div class="bg-white rounded-2xl p-5 card-shadow flex flex-col justify-between h-36">
+                        <span class="text-4xl font-serif font-bold text-ink self-center mb-4">去</span>
+                        <div class="border-t border-gray-50 pt-2">
+                            <p class="text-xs text-ink-light">qù | 动词</p>
+                            <p class="text-xs text-ink-fade mt-1">离开，距离</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ==================== 页面4：个人中心 ==================== -->
+            <div id="screen-profile" class="screen px-6 pt-4 pb-24 hidden">
+                <!-- 个人信息头部 -->
+                <div class="flex items-center mb-8 mt-2">
+                    <!-- 模拟真实山水头像 -->
+                    <div class="w-16 h-16 rounded-full bg-gray-200 overflow-hidden border-2 border-white shadow-sm mr-4 shrink-0">
+                        <img src="https://images.unsplash.com/photo-1513836279014-a89f7a76ae86?q=80&w=200&auto=format&fit=crop" alt="Avatar" class="w-full h-full object-cover opacity-80 mix-blend-multiply">
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-medium text-ink">墨清居士</h2>
+                        <div class="flex items-center gap-2 mt-1">
+                            <span class="text-xs border border-cinnabar text-cinnabar px-2 py-0.5 rounded-full">【举人】</span>
+                            <span class="text-xs text-ink-fade">Lv.12</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 数据统计 2x2 -->
+                <div class="grid grid-cols-2 gap-3 mb-8">
+                    <div class="bg-white rounded-2xl p-4 card-shadow text-center">
+                        <p class="text-3xl font-serif font-bold text-ink">328</p>
+                        <p class="text-xs text-ink-fade mt-1">已掌握词语</p>
+                    </div>
+                    <div class="bg-white rounded-2xl p-4 card-shadow text-center">
+                        <p class="text-3xl font-serif font-bold text-ink">45</p>
+                        <p class="text-xs text-ink-fade mt-1">累计学习天数</p>
+                    </div>
+                    <div class="bg-white rounded-2xl p-4 card-shadow text-center">
+                        <p class="text-3xl font-serif font-bold text-bamboo">92%</p>
+                        <p class="text-xs text-ink-fade mt-1">今日正确率</p>
+                    </div>
+                    <div class="bg-white rounded-2xl p-4 card-shadow text-center">
+                        <p class="text-3xl font-serif font-bold text-ink">1200</p>
+                        <p class="text-xs text-ink-fade mt-1">总练习题量</p>
+                    </div>
+                </div>
+
+                <!-- 学习热点图 -->
+                <div class="bg-white rounded-2xl p-5 card-shadow mb-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-sm font-medium text-ink">学习热点图</h3>
+                        <div class="flex gap-2 text-xs text-ink-fade">
+                            <span class="flex items-center gap-1"><i data-lucide="chevron-left" class="w-3 h-3"></i></span>
+                            <span>2024年10月</span>
+                            <span class="flex items-center gap-1"><i data-lucide="chevron-right" class="w-3 h-3"></i></span>
+                        </div>
+                    </div>
+                    <!-- 水墨矩阵生成区 -->
+                    <div id="heatmap" class="flex flex-wrap gap-[3px] justify-center"></div>
+                    <div class="flex items-center justify-end gap-1.5 mt-3 text-[10px] text-ink-fade">
+                        <span>少</span>
+                        <div class="ink-square bg-paper border border-gray-100"></div>
+                        <div class="ink-square bg-[#D9D9D9]"></div>
+                        <div class="ink-square bg-[#8C8C8C]"></div>
+                        <div class="ink-square bg-[#1A1A1A]"></div>
+                        <span>多</span>
+                    </div>
+                </div>
+
+                <!-- 今日复习记录 -->
+                <div class="bg-white rounded-2xl p-5 card-shadow">
+                    <h3 class="text-sm font-medium text-ink mb-4 flex items-center">
+                        <span class="w-1 h-4 bg-cinnabar rounded-full mr-2"></span>今日错题回顾
+                    </h3>
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center py-2 border-b border-gray-50">
+                            <div>
+                                <span class="text-xl font-serif text-ink mr-2">其</span>
+                                <span class="text-xs text-ink-fade">代词 / 语气副词</span>
+                            </div>
+                            <i data-lucide="chevron-right" class="w-4 h-4 text-ink-fade"></i>
+                        </div>
+                        <div class="flex justify-between items-center py-2">
+                            <div>
+                                <span class="text-xl font-serif text-ink mr-2">绝</span>
+                                <span class="text-xs text-ink-fade">动词：断绝 / 形容词：极</span>
+                            </div>
+                            <i data-lucide="chevron-right" class="w-4 h-4 text-ink-fade"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ==================== 底部导航栏 ==================== -->
+        <div class="absolute bottom-0 left-0 right-0 h-24 bg-white/95 backdrop-blur-md border-t border-gray-100 flex justify-around items-start pt-3 px-4 z-50">
+            <button onclick="switchTab('practice')" class="tab-btn flex flex-col items-center gap-1 text-cinnabar" data-tab="practice">
+                <i data-lucide="pen-tool" class="w-5 h-5"></i>
+                <span class="text-[10px] font-medium">每日一练</span>
+            </button>
+            <button onclick="switchTab('search')" class="tab-btn flex flex-col items-center gap-1 text-ink-fade" data-tab="search">
+                <i data-lucide="search" class="w-5 h-5"></i>
+                <span class="text-[10px]">词语搜索</span>
+            </button>
+            <button onclick="switchTab('collection')" class="tab-btn flex flex-col items-center gap-1 text-ink-fade" data-tab="collection">
+                <i data-lucide="archive" class="w-5 h-5"></i>
+                <span class="text-[10px]">我的墨盒</span>
+            </button>
+            <button onclick="switchTab('profile')" class="tab-btn flex flex-col items-center gap-1 text-ink-fade" data-tab="profile">
+                <i data-lucide="user" class="w-5 h-5"></i>
+                <span class="text-[10px]">我的</span>
+            </button>
+        </div>
+
+        <!-- iOS Home Indicator 模拟 -->
+        <div class="absolute bottom-2 left-1/2 -translate-x-1/2 w-32 h-1 bg-black/20 rounded-full z-50"></div>
+    </div>
+
+    <script>
+        // 初始化 Lucide 图标
+        lucide.createIcons();
+
+        // Tab 切换逻辑
+        function switchTab(tabName) {
+            // 隐藏所有页面
+            document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+            // 显示目标页面
+            document.getElementById(`screen-${tabName}`).classList.remove('hidden');
+            
+            // 更新底部导航样式
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                if(btn.dataset.tab === tabName) {
+                    btn.classList.remove('text-ink-fade');
+                    btn.classList.add('text-cinnabar');
+                    btn.querySelector('span').classList.add('font-medium');
+                } else {
+                    btn.classList.remove('text-cinnabar');
+                    btn.classList.add('text-ink-fade');
+                    btn.querySelector('span').classList.remove('font-medium');
+                }
+            });
+        }
+
+        // 每日一练答题交互逻辑
+        function selectOption(btn, isCorrect) {
+            const container = document.getElementById('options-container');
+            const panel = document.getElementById('explain-panel');
+            
+            // 防止重复点击
+            if(container.classList.contains('pointer-events-none')) return;
+            container.classList.add('pointer-events-none');
+
+            // 重置所有按钮样式
+            Array.from(container.children).forEach(b => {
+                b.classList.remove('border-cinnabar', 'bg-cinnabar/5', 'border-bamboo', 'bg-bamboo/5', 'border-gray-200');
+                b.querySelector('span').classList.remove('border-cinnabar', 'text-cinnabar', 'border-bamboo', 'text-bamboo');
+                b.classList.add('border-gray-200', 'opacity-50');
+            });
+
+            if(isCorrect) {
+                btn.classList.remove('opacity-50', 'border-gray-200');
+                btn.classList.add('border-bamboo', 'bg-bamboo/5');
+                btn.querySelector('span').classList.add('border-bamboo', 'text-bamboo');
+            } else {
+                btn.classList.remove('opacity-50', 'border-gray-200');
+                btn.classList.add('border-cinnabar', 'bg-cinnabar/5');
+                btn.querySelector('span').classList.add('border-cinnabar', 'text-cinnabar');
+                
+                // 高亮正确答案
+                Array.from(container.children).forEach(b => {
+                    if(b.getAttribute('onclick').includes('true')) {
+                        b.classList.remove('opacity-50', 'border-gray-200');
+                        b.classList.add('border-bamboo', 'bg-bamboo/5');
+                        b.querySelector('span').classList.add('border-bamboo', 'text-bamboo');
+                    }
+                });
+            }
+
+            // 展开解析
+            panel.classList.add('active');
+        }
+
+        // 生成水墨热点图矩阵
+        function generateHeatmap() {
+            const container = document.getElementById('heatmap');
+            const levels = ['bg-paper border border-gray-100', 'bg-[#EAEAEA]', 'bg-[#D9D9D9]', 'bg-[#8C8C8C]', 'bg-[#1A1A1A]'];
+            
+            // 模拟一个月的数据 (7列 x 5行)
+            for(let i=0; i<35; i++) {
+                const div = document.createElement('div');
+                // 权重：大部分为无或低，少部分为高
+                const rand = Math.random();
+                let levelIndex = 0;
+                if(rand > 0.8) levelIndex = 4;
+                else if(rand > 0.6) levelIndex = 3;
+                else if(rand > 0.4) levelIndex = 2;
+                else if(rand > 0.2) levelIndex = 1;
+                
+                div.className = `ink-square ${levels[levelIndex]}`;
+                container.appendChild(div);
+            }
+        }
+        generateHeatmap();
+    </script>
+</body>
+</html>

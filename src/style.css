@@ -1,0 +1,43 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-accent: 201 74 74;
+  --color-accent-hex: #C94A4A;
+}
+
+.theme-cinnabar { --color-accent: 201 74 74; --color-accent-hex: #C94A4A; }
+.theme-bamboo { --color-accent: 91 140 90; --color-accent-hex: #5B8C5A; }
+.theme-indigo { --color-accent: 58 95 138; --color-accent-hex: #3A5F8A; }
+.theme-ink { --color-accent: 26 26 26; --color-accent-hex: #1A1A1A; }
+.theme-amber { --color-accent: 217 140 46; --color-accent-hex: #D98C2E; }
+
+@layer base {
+  body {
+    font-family: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  }
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+}
+
+.ink-square { width: 12px; height: 12px; border-radius: 2px; }
+.card-shadow { box-shadow: 0 2px 12px rgba(0,0,0,0.03); }
+
+.accent-bg { background-color: rgb(var(--color-accent)); }
+.accent-bg-hover:hover { background-color: rgb(var(--color-accent) / 0.9); }
+.accent-text { color: rgb(var(--color-accent)); }
+.accent-border { border-color: rgb(var(--color-accent)); }
+.accent-bg-5 { background-color: rgb(var(--color-accent) / 0.05); }
+.accent-bg-10 { background-color: rgb(var(--color-accent) / 0.1); }
+.accent-bg-20 { background-color: rgb(var(--color-accent) / 0.2); }
+
+.expand-section {
+  max-height: 0; overflow: hidden;
+  transition: max-height 0.4s ease, padding 0.4s ease, border 0.4s ease;
+  border-color: transparent;
+}
+.expand-section.active { max-height: 300px; padding-top: 12px; padding-bottom: 12px; }

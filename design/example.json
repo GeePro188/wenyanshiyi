@@ -1,0 +1,38 @@
+{
+  "meta": {                          // ← 元信息
+    "format_version": "1.0",         //    版本号
+    "updated": "2026-05-04"          //    更新时间
+  },
+  "vocabularies": [                  // ← 多词库数组
+    {
+      "id": "high_school",           //    词库唯一 ID
+      "name": "高中文言文",           //    词库名称
+      "description": "...",          //    描述
+      "words": [                     //    词条数组
+        {
+          "word": "走",
+          "basic_meaning": "跑，逃跑",
+          "polysemy": [
+            {
+              "meaning": "跑",
+              "examples": [
+                { "sentence": "例句", "source": "《木兰诗》" }
+              ]
+            }
+          ],
+          "ancient_modern_diff": {
+            "ancient": "跑、逃跑",
+            "modern": "步行",
+            "examples": [
+              { "sentence": "例句", "source": "出处" }
+            ]
+          },
+          "synonyms": ["奔"],
+          "near_synonyms": ["趋"],
+          "antonyms": ["停"],
+          "notes": "补充说明"
+        }
+      ]
+    }
+  ]
+}
