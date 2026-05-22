@@ -16,15 +16,31 @@ const tabs = [
 ]
 
 const activeTab = ref('practice')
+const previousTab = ref('practice')
 const searchQuery = ref('')
 const showWordQuiz = ref(false)
 const wordQuizTarget = ref('')
 const showSettings = ref(false)
 
+/**
+ * 导航到词语搜索页面
+ * @param {string} query - 要搜索的词语
+ */
 function navigateToSearch(query) {
   showWordQuiz.value = false; showSettings.value = false
+  if (activeTab.value !== 'search') {
+    previousTab.value = activeTab.value
+  }
   searchQuery.value = query
   activeTab.value = 'search'
+}
+
+/**
+ * 从词语搜索页面返回到之前的页面
+ */
+function navigateBackFromSearch() {
+  activeTab.value = previousTab.value
+  searchQuery.value = ''
 }
 
 function navigateToWordQuiz(word) {
@@ -42,6 +58,7 @@ function navigateToProfile() {
 }
 
 provide('navigateToSearch', navigateToSearch)
+provide('navigateBackFromSearch', navigateBackFromSearch)
 provide('navigateToWordQuiz', navigateToWordQuiz)
 provide('navigateToSettings', navigateToSettings)
 provide('navigateToProfile', navigateToProfile)

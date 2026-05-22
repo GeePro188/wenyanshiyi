@@ -1,11 +1,13 @@
 <script setup>
-import { ref, watch } from 'vue'
-import { Search, ArrowRightLeft } from 'lucide-vue-next'
+import { ref, watch, inject } from 'vue'
+import { Search, ArrowRightLeft, ChevronLeft } from 'lucide-vue-next'
 import { useVocabulary } from '../composables/useVocabulary.js'
 
 const props = defineProps({ initialQuery: { type: String, default: '' } })
 const emit = defineEmits(['update:initialQuery'])
 const { search, getByWord } = useVocabulary()
+
+const navigateBackFromSearch = inject('navigateBackFromSearch', null)
 
 const searchQuery = ref(props.initialQuery)
 const selectedWord = ref(null)
@@ -28,7 +30,13 @@ watch(searchQuery, () => doSearch())
 
 <template>
   <div class="px-6 pt-4 pb-24 relative">
-    <h1 class="text-2xl font-serif font-medium text-ink mb-6">词语搜索</h1>
+    <div class="flex items-center gap-3 mb-6">
+      <button v-if="navigateBackFromSearch" @click="navigateBackFromSearch()"
+        class="p-2 -ml-2 hover:bg-gray-100 rounded-full transition-colors">
+        <ChevronLeft class="w-5 h-5 text-ink" />
+      </button>
+      <h1 class="text-2xl font-serif font-medium text-ink">词语搜索</h1>
+    </div>
 
     <div class="relative mb-6">
       <Search class="w-5 h-5 text-ink-fade absolute left-4 top-1/2 -translate-y-1/2" />
