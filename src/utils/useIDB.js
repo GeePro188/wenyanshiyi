@@ -4,27 +4,44 @@
  */
 
 const DB_NAME = 'wenyanshiyi_db'
-const DB_VERSION = 1
 
 let dbInstance = null
+
+/**
+ * 获取当前数据库的实际版本号
+ * @returns {Promise<number>} 当前版本号
+ */
+function getCurrentVersion() {
+  return new Promise((resolve) => {
+    const request = indexedDB.open(DB_NAME)
+    request.onsuccess = () => {
+      const version = request.result.version
+      request.result.close()
+      resolve(version || 1)
+    }
+    request.onerror = () => resolve(1)
+  })
+}
 
 /**
  * 初始化 IndexedDB 数据库
  * @param {string} storeName - 对象存储名称
  * @returns {Promise<IDBDatabase>} 数据库实例
  */
-function initDB(storeName) {
-  return new Promise((resolve, reject) => {
-    if (dbInstance) {
-      if (!dbInstance.objectStoreNames.contains(storeName)) {
-        dbInstance.close()
-        dbInstance = null
-      } else {
-        return resolve(dbInstance)
-      }
+async function initDB(storeName) {
+  if (dbInstance) {
+    if (!dbInstance.objectStoreNames.contains(storeName)) {
+      dbInstance.close()
+      dbInstance = null
+    } else {
+      return dbInstance
     }
+  }
 
-    const request = indexedDB.open(DB_NAME, DB_VERSION)
+  const currentVersion = await getCurrentVersion()
+  
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open(DB_NAME, currentVersion)
 
     request.onerror = () => reject(request.error)
 
@@ -247,13 +264,15 @@ export async function countData(storeName) {
  * @returns {Promise<void>}
  */
 export async function createStore(storeName, keyPath = 'id') {
-  return new Promise((resolve, reject) => {
-    if (dbInstance) {
-      dbInstance.close()
-      dbInstance = null
-    }
+  if (dbInstance) {
+    dbInstance.close()
+    dbInstance = null
+  }
 
-    const newVersion = DB_VERSION + 1
+  const currentVersion = await getCurrentVersion()
+  
+  return new Promise((resolve, reject) => {
+    const newVersion = currentVersion + 1
     const request = indexedDB.open(DB_NAME, newVersion)
 
     request.onerror = () => reject(request.error)
@@ -278,13 +297,15 @@ export async function createStore(storeName, keyPath = 'id') {
  * @returns {Promise<void>}
  */
 export async function deleteStore(storeName) {
-  return new Promise((resolve, reject) => {
-    if (dbInstance) {
-      dbInstance.close()
-      dbInstance = null
-    }
+  if (dbInstance) {
+    dbInstance.close()
+    dbInstance = null
+  }
 
-    const newVersion = DB_VERSION + 1
+  const currentVersion = await getCurrentVersion()
+  
+  return new Promise((resolve, reject) => {
+    const newVersion = currentVersion + 1
     const request = indexedDB.open(DB_NAME, newVersion)
 
     request.onerror = () => reject(request.error)

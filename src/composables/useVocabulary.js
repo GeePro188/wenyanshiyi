@@ -13,6 +13,8 @@ const VOCAB_JSON_PATH = '/public/high_school_classical_chinese_vocabulary.json'
 const FUNCTION_WORDS = new Set(['其', '所以', '之', '而', '以', '于', '为', '者', '也', '乎', '焉', '哉', '何', '乃', '且', '则', '若', '虽', '所', '与', '因', '矣', '耳'])
 
 const STORAGE_KEY = 'wenyanshiyi_data'
+const IDBCacheEnabled = JSON.parse(localStorage.getItem('setting')).IDBCacheEnabled || true // will be updated
+
 
 function loadStore() {
   try {
@@ -135,7 +137,9 @@ async function init() {
       if (fetchedData && fetchedData.vocabularies) {
         raw = fetchedData.vocabularies
         cachedVocabData = fetchedData
-        await saveVocabularyToCache(fetchedData)
+        if (IDBCacheEnabled) { // 缓存已启用
+          await saveVocabularyToCache(fetchedData)
+        }
       }
     }
 
