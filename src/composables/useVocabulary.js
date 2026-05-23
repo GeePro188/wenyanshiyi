@@ -1,9 +1,20 @@
 import { ref, computed, watch } from 'vue'
-import vocabularyData from '../../design/high_school_classical_chinese_vocabulary.json'
+import { 
+  getData, 
+  updateData, 
+  hasStore,
+  createStore 
+} from '../utils/useIDB.js'
+
+const VOCAB_STORE_NAME = 'vocabulary_cache'
+const VOCAB_CACHE_KEY = 1
+const VOCAB_JSON_PATH = '/public/high_school_classical_chinese_vocabulary.json'
 
 const FUNCTION_WORDS = new Set(['其', '所以', '之', '而', '以', '于', '为', '者', '也', '乎', '焉', '哉', '何', '乃', '且', '则', '若', '虽', '所', '与', '因', '矣', '耳'])
 
 const STORAGE_KEY = 'wenyanshiyi_data'
+const IDBCacheEnabled = JSON.parse(localStorage.getItem('setting')).IDBCacheEnabled || true // will be updated
+
 
 function loadStore() {
   try {
@@ -35,6 +46,8 @@ const activeVocabId = ref(savedState?.activeVocabId || '')
 const calculatedAllWords = ref([])
 const initialized = ref(false)
 const importedVocabs = ref(savedState?.importedVocabs || [])
+let cachedVocabData = null
+let initPromise = null
 
 const themePreset = ref(savedState?.themePreset || 'cinnabar')
 
@@ -46,34 +59,126 @@ function applyThemePreset(preset) {
   persistStore()
 }
 
-function init() {
-  if (initialized.value) return
-  const raw = (vocabularyData.vocabularies) || []
-
-  const builtIn = raw.map((v) => ({
-    id: v.id, name: v.name, description: v.description || '',
-    wordCount: (v.words || []).length,
-    source: 'builtin',
-  }))
-
-  vocabularies.value = [...builtIn, ...importedVocabs.value.map((v) => ({
-    id: v.id, name: v.name, description: v.description || '',
-    wordCount: (v.words || []).length,
-    source: 'imported',
-  }))]
-
-  if (activeVocabId.value && vocabularies.value.some((v) => v.id === activeVocabId.value)) {
-    loadVocabWords(activeVocabId.value)
-  } else if (vocabularies.value.length > 0) {
-    activeVocabId.value = vocabularies.value[0].id
+/**
+ * 从 IndexedDB 加载词汇缓存
+ * @returns {Promise<Object|null>} 缓存的词汇数据或 null
+ */
+async function loadVocabularyFromCache() {
+  try {
+    const hasStoreExists = await hasStore(VOCAB_STORE_NAME)
+    if (!hasStoreExists) return null
+    
+    const cached = await getData(VOCAB_STORE_NAME, VOCAB_CACHE_KEY)
+    if (!cached) return null
+    
+    return cached
+  } catch (e) {
+    console.warn('Failed to load vocabulary from cache:', e)
+    return null
   }
+}
 
-  applyThemePreset(themePreset.value)
-  initialized.value = true
+/**
+ * 从服务器获取词汇数据
+ * @returns {Promise<Object|null>} 词汇数据或 null
+ */
+async function fetchVocabularyData() {
+  try {
+    const res = await fetch(VOCAB_JSON_PATH)
+    if (!res.ok) throw new Error('Failed to fetch vocabulary data')
+    return await res.json()
+  } catch (e) {
+    console.error('Failed to fetch vocabulary data:', e)
+    return null
+  }
+}
+
+/**
+ * 保存词汇数据到 IndexedDB
+ * @param {Object} data - 词汇数据
+ */
+async function saveVocabularyToCache(data) {
+  try {
+    const hasStoreExists = await hasStore(VOCAB_STORE_NAME)
+    if (!hasStoreExists) {
+      await createStore(VOCAB_STORE_NAME)
+    }
+    
+    const cacheData = {
+      id: VOCAB_CACHE_KEY,
+      ...data
+    }
+    
+    await updateData(VOCAB_STORE_NAME, cacheData)
+  } catch (e) {
+    console.warn('Failed to save vocabulary to cache:', e)
+  }
+}
+
+/**
+ * 初始化词汇数据
+ */
+async function init() {
+  if (initialized.value) return
+  
+  if (initPromise) {
+    return initPromise
+  }
+  
+  initPromise = (async () => {
+    let raw = null
+    
+    const cached = await loadVocabularyFromCache()
+    if (cached && cached.vocabularies) {
+      raw = cached.vocabularies
+      cachedVocabData = cached
+    } else {
+      const fetchedData = await fetchVocabularyData()
+      if (fetchedData && fetchedData.vocabularies) {
+        raw = fetchedData.vocabularies
+        cachedVocabData = fetchedData
+        if (IDBCacheEnabled) { // 缓存已启用
+          await saveVocabularyToCache(fetchedData)
+        }
+      }
+    }
+
+    if (!raw || raw.length === 0) {
+      console.error('No vocabulary data available')
+      return
+    }
+
+    const builtIn = raw.map((v) => ({
+      id: v.id, name: v.name, description: v.description || '',
+      wordCount: (v.words || []).length,
+      source: 'builtin',
+    }))
+
+    vocabularies.value = [...builtIn, ...importedVocabs.value.map((v) => ({
+      id: v.id, name: v.name, description: v.description || '',
+      wordCount: (v.words || []).length,
+      source: 'imported',
+    }))]
+
+    if (activeVocabId.value && vocabularies.value.some((v) => v.id === activeVocabId.value)) {
+      loadVocabWords(activeVocabId.value)
+    } else if (vocabularies.value.length > 0) {
+      activeVocabId.value = vocabularies.value[0].id
+    }
+
+    applyThemePreset(themePreset.value)
+    initialized.value = true
+  })()
+  
+  return initPromise
 }
 
 function findVocabData(vocabId) {
-  const builtIn = (vocabularyData.vocabularies || []).find((v) => v.id === vocabId)
+  if (!cachedVocabData) {
+    console.warn('Vocabulary data not initialized')
+    return null
+  }
+  const builtIn = (cachedVocabData.vocabularies || []).find((v) => v.id === vocabId)
   if (builtIn) return builtIn
   const imported = importedVocabs.value.find((v) => v.id === vocabId)
   return imported || null
